@@ -1056,77 +1056,98 @@
 
         // Save and send WhatsApp message
         async function saveAndSendWhatsapp() {
-    if (isSaveWhatsappClicked) return;
-    isSaveWhatsappClicked = true;
-    const saveButton = document.getElementById('saveWhatsappButton');
-    saveButton.disabled = true;
-    saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            if (isSaveWhatsappClicked) return;
+            isSaveWhatsappClicked = true;
+            const saveButton = document.getElementById('saveWhatsappButton');
+            saveButton.disabled = true;
+            saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
 
-    try {
-        // Validate inputs
-        const phoneRegex = /^[6-9]\d{9}$/;
-        if (!phoneRegex.test(submittedPhoneNumber)) {
-            throw new Error('Please enter a valid 10-digit Indian phone number');
+            try {
+                // Validate inputs
+                const phoneRegex = /^[6-9]\d{9}$/;
+                if (!phoneRegex.test(submittedPhoneNumber)) {
+                    throw new Error('Please enter a valid 10-digit Indian phone number');
+                }
+
+                const amount = parseFloat(submittedAmount);
+                if (isNaN(amount)) {
+                    throw new Error('Please enter a valid amount');
+                }
+
+                // Verify committee member data
+                if (!currentCommitteeMember || !currentCommitteeMember.email || !currentCommitteeMember.name) {
+                    throw new Error('Committee member information is incomplete. Please log in again.');
+                }
+
+                // Save to Firestore
+                const submissionsRef = collection(db, "CommitteeMembers", currentCommitteeMember.email, "Submissions");
+                await addDoc(submissionsRef, {
+                    name: submittedName,
+                    city: submittedCity,
+                    gothra: submittedGothra,
+                    amount: amount,
+                    phoneNumber: submittedPhoneNumber,
+                    timestamp: serverTimestamp()
+                });
+
+                // Prepare WhatsApp message with enhanced formatting
+                const whatsappMessage = `✨ *శ్రీ మత్ పర్వత వర్ధని సమేత శ్రీ రామలింగేశ్వర స్వామి వారి దేవస్థానం* ✨
+🏛 *నాగెళ్లముడుపు-523371*
+
+━━━━━━━━━━━━━━━━━━━━
+
+📋 *చందా వివరములు:*
+
+┌───────────────────────────
+│ 📛 *పేరు:* ${submittedName}
+│ 🏙️ *ఊరు:* ${submittedCity}
+│ 🕉️ *గోత్రం:* ${submittedGothra}
+│ 💰 *చందా మొత్తము:* ₹${parseFloat(submittedAmount).toFixed(2)}
+│ 📱 *ఫోన్ నెంబర్:* ${submittedPhoneNumber}
+│ 👤 *చందా స్వీకరించిన వారు:* ${currentCommitteeMember.name} (${currentCommitteeMember.mobile})
+└───────────────────────────
+
+━━━━━━━━━━━━━━━━━━━━
+
+📸 *దేవస్థానం నందు జరిగిన ఉత్సవాలు, వేడుకలు వీక్షించుటకు:*
+${TEMPLE_IMAGE_URL}
+
+📄 *ఆహ్వాన పత్రిక PDF లింక్:*
+https://drive.google.com/file/d/1QmEHulIQZRqumZ-tVAYJ4UjUB9yQJDzG/view?usp=sharing
+
+📍 *దేవస్థానం గూగుల్ మ్యాప్స్ లొకేషన్:*
+https://maps.app.goo.gl/5NKoQcKA87QVDXm37
+
+━━━━━━━━━━━━━━━━━━━━
+
+🙏 *Thank you for your generous donation!* 🙏
+
+📞 *నిత్య పూజల వివరములకు సంప్రదించగలరు:*
+*కూనపులి శ్యామల దుర్గా ప్రసాద్* 
+📱 9949844807`;
+
+                // Open WhatsApp
+                openWhatsApp(submittedPhoneNumber, whatsappMessage);
+
+                // Reset form
+                document.getElementById('name').value = '';
+                document.getElementById('city').value = '';
+                document.getElementById('gothra').value = '';
+                document.getElementById('amount').value = '';
+                document.getElementById('phoneNumber').value = '';
+
+                showNotification('Donation saved successfully!', 'success');
+                showForm('customForm');
+            } catch (error) {
+                console.error('Save error:', error);
+                showNotification(`Error: ${error.message}`, 'error');
+                showForm('confirmation');
+            } finally {
+                isSaveWhatsappClicked = false;
+                saveButton.disabled = false;
+                saveButton.innerHTML = '<i class="fab fa-whatsapp"></i> Save & WhatsApp';
+            }
         }
-
-        const amount = parseFloat(submittedAmount);
-        if (isNaN(amount)) {
-            throw new Error('Please enter a valid amount');
-        }
-
-        // Verify committee member data
-        if (!currentCommitteeMember || !currentCommitteeMember.email || !currentCommitteeMember.name) {
-            throw new Error('Committee member information is incomplete. Please log in again.');
-        }
-
-        // CORRECTED: Using Firebase v9 syntax
-        const submissionsRef = collection(db, "CommitteeMembers", currentCommitteeMember.email, "Submissions");
-        await addDoc(submissionsRef, {
-            name: submittedName,
-            city: submittedCity,
-            gothra: submittedGothra,
-            amount: amount,
-            phoneNumber: submittedPhoneNumber,
-            timestamp: serverTimestamp()
-        });
-
-        // Prepare WhatsApp message
-        const whatsappMessage = `${TEMPLE_IMAGE_URL}\n\n` + 
-            `*శ్రీ మత్ పర్వత వర్ధని సమేత శ్రీ రామలింగేశ్వర స్వామి వారి దేవస్థానం, నాగెళ్లముడుపు-523371*\n\n` +
-            `*చందా వివరములు:*\n\n` +
-            `📛 *పేరు:* ${submittedName}\n` +
-            `🏙️ *ఊరు:* ${submittedCity}\n` +
-            `🕉️ *గోత్రం:* ${submittedGothra}\n` +
-            `💰 *చందా మొత్తము:* ₹${amount.toFixed(2)}\n` +
-            `📱 *ఫోన్ నెంబర్:* ${submittedPhoneNumber}\n` +
-            `👤 *చందా స్వీకరించిన వారు:* ${currentCommitteeMember.name} (${currentCommitteeMember.mobile})\n\n` +
-            `📄 *ఆహ్వాన పత్రిక PDF లింక్:* https://drive.google.com/your-pdf-link\n` +
-            `📍 *దేవస్థానం గూగుల్ మ్యాప్స్ లొకేషన్:* https://maps.app.goo.gl/5NKoQcKA87QVDXm37\n\n` +
-            `_Thank you for your generous donation!_ 🙏\n\n`+
-            `నిత్య పూజల వివరములకు సంప్రదించగలరు:\nకూనపులి శ్యామల దుర్గా ప్రసాద్\n9949844807`;
-
-        // Open WhatsApp
-        openWhatsApp(submittedPhoneNumber, whatsappMessage);
-
-        // Reset form
-        document.getElementById('name').value = '';
-        document.getElementById('city').value = '';
-        document.getElementById('gothra').value = '';
-        document.getElementById('amount').value = '';
-        document.getElementById('phoneNumber').value = '';
-
-        showNotification('Donation saved successfully!', 'success');
-        showForm('customForm');
-    } catch (error) {
-        console.error('Save error:', error);
-        showNotification(`Error: ${error.message}`, 'error');
-        showForm('confirmation');
-    } finally {
-        isSaveWhatsappClicked = false;
-        saveButton.disabled = false;
-        saveButton.innerHTML = '<i class="fab fa-whatsapp"></i> Save & WhatsApp';
-    }
-}
 
         // View submissions
     async function viewSubmissions() {
