@@ -1,4 +1,4 @@
-```markdown
+
 # Committee Donation Form
 
 This is a single-page web application built for managing committee member donations. It allows users to register, log in, submit donations, view and edit their submissions, export data to XLSX, and redirect to WhatsApp for confirmation messages. The app uses Firebase for authentication and data storage, with a modern UI featuring animations, notifications, and a background slideshow.
@@ -67,8 +67,8 @@ The codebase is contained in a single `index.html` file with inline CSS and Java
 
 2. **Clone the Repository**:
    ```bash
-   git clone https://github.com/mvsabhishek96/donation-form.git
-   cd donation-form
+   git clone https://github.com/mvsabhishek96/parvathavardhini2025.git
+   cd parvathavardhini2025
    ```
 
 3. **Install Dependencies**:
@@ -163,4 +163,3 @@ Flow:
 ## License
 
 MIT License. See LICENSE file for details.
-```
