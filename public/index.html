@@ -383,6 +383,17 @@
     .total-row td {
         padding-top: 12px; border-top: 2px solid var(--secondary-color);
         color: var(--secondary-color);
+    }.site-footer {
+        width: 100%;
+        text-align: center;
+        padding: 10px 0;
+        margin-top: auto; /* Pushes footer to the bottom in the flex layout */
+        color: var(--light-color);
+        font-size: 0.85rem;
+        font-weight: 300;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+        position: relative;
+        z-index: 5;
     }
     
     @media (min-width: 768px) {
@@ -401,6 +412,9 @@
         20%, 40%, 60%, 80% { transform: translateX(5px); }
     }
 </style>
+<footer class="site-footer">
+        <p>Developed by mvsabhishek96@gmail.com</p>
+    </footer>
 </head>
 <body>
     <div class="slideshow">
