@@ -1,0 +1,21 @@
+{
+  "name": "Parvathavardhini Donation Portal",
+  "short_name": "PARVATHAVARDHINI",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#FFF8E1",
+  "theme_color": "#800000",
+  "description": "A portal for committee members to record temple donations.",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}
