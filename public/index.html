@@ -396,7 +396,120 @@
         text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
         position: relative;
         z-index: 5;
-    }
+    }.filters-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+    padding: 10px;
+    background-color: rgba(255, 248, 225, 0.6);
+    border-radius: var(--border-radius);
+    margin-bottom: 15px;
+}
+.filters-container > div {
+    display: flex;
+    flex-direction: column;
+}
+.filters-container label {
+    font-size: 0.8rem;
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+.filters-container input,
+.filters-container select {
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid var(--secondary-color);
+    background-color: #fff;
+}
+.filters-container .export-button {
+    margin-left: auto;
+    padding: 8px 15px;
+    height: fit-content;
+    align-self: flex-end;
+}
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+.modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+.modal-content {
+    background: var(--light-color);
+    padding: 25px;
+    border-radius: var(--border-radius);
+    width: 90%;
+    max-width: 500px;
+    box-shadow: var(--box-shadow);
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+.modal-overlay.active .modal-content {
+    transform: scale(1);
+}
+.modal-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 2rem;
+    color: var(--dark-color);
+    cursor: pointer;
+}
+#modalBody p {
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(128, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+}
+#modalBody strong {
+    color: var(--secondary-color);
+}
+
+/* Improved Table Readability */
+.action-cell .view-btn {
+    background-color: var(--primary-color);
+    color: white;
+}#top-bar {
+    display: flex; /* Changed from none to flex */
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-info-display {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: rgba(255, 248, 225, 0.8);
+    padding: 8px 12px;
+    border-radius: var(--border-radius);
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--secondary-color);
+    border: 1px solid var(--secondary-color);
+}
+
+#actionButtons {
+    display: flex; /* Ensure buttons are displayed */
+    width: auto; /* Override inline styles */
+    margin: 0; /* Override inline styles */
+}
     
     @media (min-width: 768px) {
         .form-container { padding: 30px; }
@@ -557,22 +670,35 @@
             </div>
             <div class="message" id="editMessage"></div>
         </div>
+        <div id="submissionsContainer" class="submissions-container"></div>
+        <div id="top-bar" style="display: none;">
+
 
         <div id="actionButtons" style="display: none; width: 100%; max-width: 500px; margin: 15px auto;">
-            <div class="action-buttons">
-                <button id="viewSubmissionsButton" class="secondary-btn">
-                    <i class="fas fa-list"></i> View Submissions
-                </button>
-                <button id="downloadXlsxButton" class="success-btn">
-                    <i class="fas fa-file-excel"></i> Export
-                </button>
-                <button id="logoutButton">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </button>
-            </div>
-        </div>
+     <div id="top-bar" style="display: none; width: 100%; max-width: 500px; margin: 15px auto;">
+     <div id="userInfo" class="user-info-display">
+        <i class="fas fa-user-check"></i>
+        <span id="loggedInUserName"></span>
+    </div>
+    <div id="actionButtons" class="action-buttons">
+        <button id="viewSubmissionsButton">
+            <i class="fas fa-list"></i> View Submissions
+        </button>
+        <button id="logoutButton">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+    </div>
+</div>
+</div>
+    </div>
 
-        <div id="submissionsContainer" class="submissions-container hidden"></div>
+<div id="submissionModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <span id="modalCloseBtn" class="modal-close-btn">&times;</span>
+        <h2><i class="fas fa-file-invoice-dollar"></i> Donation Details</h2>
+        <div id="modalBody"></div>
+    </div>
+</div>
     </div>
 
     <div class="floating-notification" id="floatingNotification">
@@ -645,6 +771,9 @@
     let authMode = 'signIn';
     let submissionsData = [];
     let whatsappWindow = null;
+    let inKindData = [];
+    let allSubmissionsMaster = []; // Will hold the original, unfiltered data
+    let currentlyDisplayedData = []; // Will hold the filtered and sorted data
 
     // Show floating notification
     function showNotification(message, type = 'success') {
@@ -1032,111 +1161,173 @@ https://maps.app.goo.gl/5NKoQcKA87QVDXm37
     }
 
     async function viewSubmissions() {
-        if (!currentCommitteeMember || !currentCommitteeMember.email) {
-            showNotification('Please log in to view submissions.', 'error');
-            showForm('loginForm');
-            return;
-        }
-        
-        const submissionsContainer = document.getElementById('submissionsContainer');
-        submissionsContainer.innerHTML = '<div class="loader"></div>';
-        showForm('submissionsContainer');
-        document.getElementById('actionButtons').style.display = 'none';
+    if (!currentCommitteeMember) return;
+    const submissionsContainer = document.getElementById('submissionsContainer');
+    submissionsContainer.innerHTML = '<div class="loader"></div>';
+    showForm('submissionsContainer');
 
-        try {
-            const q = query(
-                collection(db, "CommitteeMembers", currentCommitteeMember.email, "Submissions"),
-                orderBy("amount", "desc") // Ordering by timestamp is generally more useful
-            );
-            
-            const querySnapshot = await getDocs(q);
-            submissionsData = [];
-            querySnapshot.forEach(doc => {
-                const data = doc.data();
-                submissionsData.push({ 
-                    id: doc.id, 
-                    ...data,
-                    timestamp: data.timestamp?.toDate() || new Date()
-                });
-            });
+    try {
+        const cashQuery = query(collection(db, `Submissions_${encodeURIComponent(currentCommitteeMember.email)}`));
+        const inKindQuery = query(collection(db, `InKindDonations_${encodeURIComponent(currentCommitteeMember.email)}`));
 
-            renderSubmissionsTable();
-        } catch (error) {
-            console.error('View submissions error:', error);
-            submissionsContainer.innerHTML = '<p class="error">Failed to load submissions. Please try again.</p>';
-        }
+        const [cashSnapshot, inKindSnapshot] = await Promise.all([getDocs(cashQuery), getDocs(inKindQuery)]);
+
+        const cashData = cashSnapshot.docs.map(doc => ({ id: doc.id, type: 'amount', ...doc.data() }));
+        const inKindData = inKindSnapshot.docs.map(doc => ({ id: doc.id, type: 'inKind', ...doc.data() }));
+
+        allSubmissionsMaster = [...cashData, ...inKindData];
+        applyFiltersAndRender(); // New central rendering function
+    } catch (error) {
+        console.error('View submissions error:', error);
+        submissionsContainer.innerHTML = '<p class="error">Failed to load submissions.</p>';
     }
-    function renderSubmissionsTable() {
-        const submissionsContainer = document.getElementById('submissionsContainer');
-        
-        if (submissionsData.length === 0) {
-            submissionsContainer.innerHTML = `
-                <button id="backToFormButton" class="back-btn"><i class="fas fa-arrow-left"></i> Back</button>
-                <p>No submissions found.</p>`;
-            document.getElementById('backToFormButton').addEventListener('click', () => {
-                showForm('customForm');
-                document.getElementById('actionButtons').style.display = 'block';
-            });
-            return;
-        }
+}
+// ADD THIS NEW function
+function applyFiltersAndRender() {
+    const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
+    const startDate = document.getElementById('startDate')?.value || '';
+    const endDate = document.getElementById('endDate')?.value || '';
+    const sortOrder = document.getElementById('sortOrder')?.value || 'amount_desc';
 
-        let tableHtml = `
-            <button id="backToFormButton" class="back-btn">
-                <i class="fas fa-arrow-left"></i> Back to Donation Form
-            </button>
+    let filteredData = allSubmissionsMaster.filter(item => {
+        // Search filter
+        const matchesSearch = searchTerm === '' ||
+            item.name.toLowerCase().includes(searchTerm) ||
+            item.city.toLowerCase().includes(searchTerm) ||
+            item.phoneNumber.includes(searchTerm);
+
+        // Date filter
+        if (!matchesSearch) return false;
+        if (!item.timestamp) return true; // Keep items with no timestamp
+
+        const itemDate = item.timestamp.toDate();
+        const start = startDate ? new Date(startDate) : null;
+        const end = endDate ? new Date(endDate) : null;
+        if (start) start.setHours(0, 0, 0, 0);
+        if (end) end.setHours(23, 59, 59, 999);
+
+        const matchesDate = (!start || itemDate >= start) && (!end || itemDate <= end);
+        return matchesDate;
+    });
+
+    // Sorting
+    switch (sortOrder) {
+        case 'amount_asc':
+            filteredData.sort((a, b) => (a.amount || 0) - (b.amount || 0));
+            break;
+        case 'date_desc':
+            filteredData.sort((a, b) => (b.timestamp?.toDate() || 0) - (a.timestamp?.toDate() || 0));
+            break;
+        case 'amount_desc':
+        default:
+            filteredData.sort((a, b) => (b.amount || 0) - (a.amount || 0));
+            break;
+    }
+
+    currentlyDisplayedData = filteredData; // Store for export
+    renderSubmissionsTable(currentlyDisplayedData);
+}
+                  
+    // REPLACED renderSubmissionsTable function
+function renderSubmissionsTable(dataToRender) {
+    const submissionsContainer = document.getElementById('submissionsContainer');
+    const totalAmount = dataToRender
+        .filter(item => item.type === 'amount')
+        .reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+
+    let contentHtml = `
+        <button id="backToFormButton" class="back-btn"><i class="fas fa-arrow-left"></i> Back</button>
+        <div class="filters-container">
+            <div><label for="searchInput">Search</label><input type="text" id="searchInput" placeholder="Name, City, Phone..."></div>
+            <div><label for="startDate">Start Date</label><input type="date" id="startDate"></div>
+            <div><label for="endDate">End Date</label><input type="date" id="endDate"></div>
+            <div><label for="sortOrder">Sort By</label>
+                <select id="sortOrder">
+                    <option value="amount_desc">Amount (High to Low)</option>
+                    <option value="amount_asc">Amount (Low to High)</option>
+                    <option value="date_desc">Date (Newest First)</option>
+                </select>
+            </div>
+            <button id="exportButton" class="export-button success-btn"><i class="fas fa-file-excel"></i> Export</button>
+        </div>
+    `;
+
+    if (dataToRender.length === 0) {
+        contentHtml += '<p>No submissions match your filters.</p>';
+    } else {
+        contentHtml += `
             <table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>City</th>
-                        <th>Gothra</th>
-                        <th>Amount</th>
-                        <th>Phone Number</th>
-                        <th>Date</th>
-                        <th>Actions</th>
+                <thead><tr><th>Name</th><th>City</th><th>Donation</th><th>Date</th><th>Actions</th></tr></thead>
+                <tbody>
+                    ${dataToRender.map(data => `
+                        <tr>
+                            <td>${data.name || 'N/A'}</td>
+                            <td>${data.city || 'N/A'}</td>
+                            <td>${data.type === 'amount' ? `₹${parseFloat(data.amount || 0).toFixed(2)}` : data.description}</td>
+                            <td>${data.timestamp?.toDate().toLocaleDateString() || 'N/A'}</td>
+                            <td class="action-cell">
+                                <button class="view-btn" data-id="${data.id}"><i class="fas fa-eye"></i> View</button>
+                                <button class="edit-btn" data-id="${data.id}" data-type="${data.type}"><i class="fas fa-edit"></i></button>
+                                <button class="delete-btn" data-id="${data.id}" data-type="${data.type}"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    `).join('')}
+                    <tr class="total-row">
+                        <td colspan="2">Filtered Total Cash</td>
+                        <td>₹${totalAmount.toFixed(2)}</td>
+                        <td colspan="2"></td>
                     </tr>
-                </thead>
-                <tbody>`;
-        
-        submissionsData.forEach(data => {
-            tableHtml += `<tr>
-                <td>${data.name || 'N/A'}</td>
-                <td>${data.city || 'N/A'}</td>
-                <td>${data.gothra || 'N/A'}</td>
-                <td>₹${parseFloat(data.amount || 0).toFixed(2)}</td>
-                <td>${data.phoneNumber || 'N/A'}</td>
-                <td>${data.timestamp.toLocaleString()}</td>
-                <td class="action-cell">
-                    <button class="edit-btn" data-id="${data.id}"><i class="fas fa-edit"></i> Edit</button>
-                    <button class="delete-btn" data-id="${data.id}"><i class="fas fa-trash"></i> Delete</button>
-                </td>
-            </tr>`;
-        });
+                </tbody>
+            </table>`;
+    }
 
-        const totalAmount = submissionsData.reduce((sum, data) => sum + (parseFloat(data.amount) || 0), 0);
-        tableHtml += `<tr class="total-row">
-            <td colspan="3">Total</td>
-            <td>₹${totalAmount.toFixed(2)}</td>
-            <td colspan="3"></td>
-        </tr></tbody></table>`;
-        
-        submissionsContainer.innerHTML = tableHtml;
+    submissionsContainer.innerHTML = contentHtml;
+    addTableEventListeners(); // New function to handle listeners
+}
+    // ADD THESE NEW functions
+function addTableEventListeners() {
+    document.getElementById('backToFormButton')?.addEventListener('click', () => showForm('customForm'));
+    document.getElementById('searchInput')?.addEventListener('input', applyFiltersAndRender);
+    document.getElementById('startDate')?.addEventListener('change', applyFiltersAndRender);
+    document.getElementById('endDate')?.addEventListener('change', applyFiltersAndRender);
+    document.getElementById('sortOrder')?.addEventListener('change', applyFiltersAndRender);
+    document.getElementById('exportButton')?.addEventListener('click', downloadXlsx);
 
-        // Add event listeners
-        document.getElementById('backToFormButton').addEventListener('click', () => {
-            showForm('customForm');
-            document.getElementById('actionButtons').style.display = 'block';
+    document.querySelectorAll('.view-btn').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const submissionId = e.currentTarget.dataset.id;
+            const submission = allSubmissionsMaster.find(item => item.id === submissionId);
+            if (submission) showSubmissionModal(submission);
         });
+    });
+    // Add edit/delete listeners here if they aren't global
+}
 
-        document.querySelectorAll('.edit-btn').forEach(button => {
-            button.addEventListener('click', () => editSubmission(button.dataset.id));
-        });
+function showSubmissionModal(submission) {
+    const modal = document.getElementById('submissionModal');
+    const modalBody = document.getElementById('modalBody');
+    const donationDisplay = submission.type === 'amount'
+        ? `<strong>Donation:</strong> <span>₹${parseFloat(submission.amount || 0).toFixed(2)}</span>`
+        : `<strong>Items:</strong> <span>${submission.description}</span>`;
 
-        // NEW: Add event listeners for delete buttons
-        document.querySelectorAll('.delete-btn').forEach(button => {
-            button.addEventListener('click', () => deleteSubmission(button.dataset.id));
-        });
-    }              
+    modalBody.innerHTML = `
+        <p><strong>Name:</strong> <span>${submission.name}</span></p>
+        <p><strong>City:</strong> <span>${submission.city}</span></p>
+        <p><strong>Gothra:</strong> <span>${submission.gothra || 'N/A'}</span></p>
+        <p>${donationDisplay}</p>
+        <p><strong>Phone Number:</strong> <span>${submission.phoneNumber}</span></p>
+        <p><strong>Date:</strong> <span>${submission.timestamp?.toDate().toLocaleString() || 'N/A'}</span></p>
+        <p><strong>Collected By:</strong> <span>${currentCommitteeMember.name}</span></p>
+    `;
+    modal.style.display = 'flex';
+    setTimeout(() => modal.classList.add('active'), 10);
+}
+
+function hideSubmissionModal() {
+    const modal = document.getElementById('submissionModal');
+    modal.classList.remove('active');
+    setTimeout(() => modal.style.display = 'none', 300);
+}
 
     function editSubmission(docId) {
         const submission = submissionsData.find(data => data.id === docId);
@@ -1221,22 +1412,27 @@ https://maps.app.goo.gl/5NKoQcKA87QVDXm37
         showForm('submissionsContainer');
     }
 
-    function downloadXlsx() {
-        const data = submissionsData.map(item => ({
-            'Committee Member': currentCommitteeMember?.name || 'N/A',
-            'Name': item.name || 'N/A',
-            'City': item.city || 'N/A',
-            'Gothra': item.gothra || 'N/A',
-            'Amount': parseFloat(item.amount || 0),
-            'Phone Number': item.phoneNumber || 'N/A',
-            'Timestamp': item.timestamp instanceof Date ? item.timestamp.toLocaleString() : 'N/A'
+    // REPLACED downloadXlsx function
+function downloadXlsx() {
+    if (confirm("This will download an Excel sheet with the data exactly as you see it now (with current filters and sorting). Proceed?")) {
+        const dataForExport = currentlyDisplayedData.map(item => ({
+            'Name': item.name,
+            'City': item.city,
+            'Donation Type': item.type,
+            'Amount': item.type === 'amount' ? item.amount : '',
+            'Items': item.type === 'inKind' ? item.description : '',
+            'Phone Number': item.phoneNumber,
+            'Date': item.timestamp?.toDate().toLocaleString() || 'N/A',
+            'Collected By': currentCommitteeMember.name
         }));
-        const ws = XLSX.utils.json_to_sheet(data);
+
+        const ws = XLSX.utils.json_to_sheet(dataForExport);
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'Submissions');
-        XLSX.writeFile(wb, 'donation_submissions.xlsx');
-        showNotification('File downloaded successfully!', 'success');
+        XLSX.utils.book_append_sheet(wb, ws, 'Donations');
+        XLSX.writeFile(wb, 'donations_export.xlsx');
+        showNotification('Export successful!', 'success');
     }
+}
 
     // NEW: Function to pick a contact from the user's device
     async function pickContact(targetInputId) {
@@ -1301,34 +1497,41 @@ https://maps.app.goo.gl/5NKoQcKA87QVDXm37
         document.getElementById('editPickContactBtn')?.addEventListener('click', () => pickContact('editPhoneNumber'));
 
 
-        onAuthStateChanged(auth, async (user) => {
-            if (user && user.emailVerified) {
-                try {
-                    const userDoc = await getDoc(doc(db, 'CommitteeMembers', user.email));
-                    if (userDoc.exists()) {
-                        currentCommitteeMember = {
-                            email: user.email,
-                            name: userDoc.data().name,
-                            mobile: userDoc.data().mobile
-                        };
-                        showForm('customForm');
-                        document.getElementById('actionButtons').style.display = 'block';
-                    } else {
-                        await signOut(auth);
-                        showNotification('Committee member data not found', 'error');
-                        showForm('loginForm');
-                    }
-                } catch (error) {
-                    console.error('Auth state error:', error);
-                    await signOut(auth);
-                    showForm('loginForm');
-                }
+        // REPLACED onAuthStateChanged function
+onAuthStateChanged(auth, async (user) => {
+    const topBar = document.getElementById('top-bar'); // Get the new top bar container
+
+    if (user && user.emailVerified) {
+        try {
+            const userDoc = await getDoc(doc(db, 'CommitteeMembers', user.email));
+            if (userDoc.exists()) {
+                currentCommitteeMember = {
+                    email: user.email,
+                    name: userDoc.data().name,
+                    mobile: userDoc.data().mobile
+                };
+
+                // NEW: Display the logged-in user's name
+                document.getElementById('loggedInUserName').textContent = currentCommitteeMember.name;
+
+                showForm('customForm');
+                topBar.style.display = 'flex'; // Show the top bar
             } else {
-                currentCommitteeMember = null;
+                await signOut(auth);
+                showNotification('Committee member data not found', 'error');
                 showForm('loginForm');
-                document.getElementById('actionButtons').style.display = 'none';
             }
-        });
+        } catch (error) {
+            console.error('Auth state error:', error);
+            await signOut(auth);
+            showForm('loginForm');
+        }
+    } else {
+        currentCommitteeMember = null;
+        showForm('loginForm');
+        topBar.style.display = 'none'; // Hide the top bar if not logged in
+    }
+});
     });
  </script>
  <script>
