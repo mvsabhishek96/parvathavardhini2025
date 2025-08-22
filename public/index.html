@@ -1130,7 +1130,8 @@
         document.getElementById('confirmPhoneNumber').textContent = submittedPhoneNumber;
         
         // --- Update confirmation screen dynamically ---
-        document.querySelector('#confirmAmount').parentNode.querySelector('strong').textContent = 'Amount:';
+        const amountRow = document.getElementById('confirmAmount').parentNode; // Define amountRow here
+        amountRow.querySelector('strong').textContent = 'Amount:'; // Now reset the label
         
         if (isCashDonation) {
             amountRow.style.display = 'flex';
@@ -1261,7 +1262,9 @@ https://maps.app.goo.gl/5NKoQcKA87QVDXm37
 
         showNotification('Donation saved successfully!', 'success');
         showForm('customForm');
-
+        if (allSubmissionsMaster.length > 0) {
+            viewSubmissions(); // Automatically refresh the submissions list in the background
+        }
     } catch (error) {
         console.error('Save error:', error);
         showNotification(`Error: ${error.message}`, 'error');
@@ -1273,89 +1276,27 @@ https://maps.app.goo.gl/5NKoQcKA87QVDXm37
     }
 }
 
-    async function viewSubmissions() {
-    if (!currentCommitteeMember) return;
+    function renderSubmissionsTable(dataToRender) {
     const submissionsContainer = document.getElementById('submissionsContainer');
-    submissionsContainer.innerHTML = '<div class="loader"></div>';
-    showForm('submissionsContainer');
+    
+    // START: Remember current filter values before clearing the HTML
+    const currentSearch = document.getElementById('searchInput')?.value || '';
+    const currentSort = document.getElementById('sortOrder')?.value || 'amount_desc';
+    const currentStartDate = document.getElementById('startDate')?.value || '';
+    const currentEndDate = document.getElementById('endDate')?.value || '';
+    // END: Remember current filter values
 
-    try {
-        // FIX: Corrected Firestore path to look inside the CommitteeMembers document as a subcollection.
-        const cashQuery = query(collection(db, "CommitteeMembers", currentCommitteeMember.email, "Submissions"));
-        const inKindQuery = query(collection(db, "CommitteeMembers", currentCommitteeMember.email, "InKindDonations"));
-
-        const [cashSnapshot, inKindSnapshot] = await Promise.all([getDocs(cashQuery), getDocs(inKindQuery)]);
-
-        const cashData = cashSnapshot.docs.map(doc => ({ id: doc.id, type: 'amount', ...doc.data() }));
-        const inKindData = inKindSnapshot.docs.map(doc => ({ id: doc.id, type: 'inKind', ...doc.data() }));
-
-        allSubmissionsMaster = [...cashData, ...inKindData];
-        applyFiltersAndRender();
-    } catch (error) {
-        console.error('View submissions error:', error);
-        submissionsContainer.innerHTML = '<p class="error">Failed to load submissions.</p>';
-    }
-}
-
-// ADD THIS NEW function
-function applyFiltersAndRender() {
-    const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
-    const startDate = document.getElementById('startDate')?.value || '';
-    const endDate = document.getElementById('endDate')?.value || '';
-    const sortOrder = document.getElementById('sortOrder')?.value || 'amount_desc';
-
-    let filteredData = allSubmissionsMaster.filter(item => {
-        // Search filter
-        const matchesSearch = searchTerm === '' ||
-            item.name.toLowerCase().includes(searchTerm) ||
-            item.city.toLowerCase().includes(searchTerm) ||
-            item.phoneNumber.includes(searchTerm);
-
-        // Date filter
-        if (!matchesSearch) return false;
-        if (!item.timestamp) return true; // Keep items with no timestamp
-
-        const itemDate = item.timestamp.toDate();
-        const start = startDate ? new Date(startDate) : null;
-        const end = endDate ? new Date(endDate) : null;
-        if (start) start.setHours(0, 0, 0, 0);
-        if (end) end.setHours(23, 59, 59, 999);
-
-        const matchesDate = (!start || itemDate >= start) && (!end || itemDate <= end);
-        return matchesDate;
-    });
-
-    // Sorting
-    switch (sortOrder) {
-        case 'amount_asc':
-            filteredData.sort((a, b) => (a.amount || 0) - (b.amount || 0));
-            break;
-        case 'date_desc':
-            filteredData.sort((a, b) => (b.timestamp?.toDate() || 0) - (a.timestamp?.toDate() || 0));
-            break;
-        case 'amount_desc':
-        default:
-            filteredData.sort((a, b) => (b.amount || 0) - (a.amount || 0));
-            break;
-    }
-
-    currentlyDisplayedData = filteredData; // Store for export
-    renderSubmissionsTable(currentlyDisplayedData);
-}
-                  
-    // REPLACED renderSubmissionsTable function
-function renderSubmissionsTable(dataToRender) {
-    const submissionsContainer = document.getElementById('submissionsContainer');
     const totalAmount = dataToRender
         .filter(item => item.type === 'amount')
         .reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
 
+    // Build the HTML for the filter controls and the table
     let contentHtml = `
         <button id="backToFormButton" class="back-btn"><i class="fas fa-arrow-left"></i> Back</button>
         <div class="filters-container">
-            <div><label for="searchInput">Search</label><input type="text" id="searchInput" placeholder="Name, City, Phone..."></div>
-            <div><label for="startDate">Start Date</label><input type="date" id="startDate"></div>
-            <div><label for="endDate">End Date</label><input type="date" id="endDate"></div>
+            <div><label for="searchInput">Search</label><input type="text" id="searchInput" placeholder="Name, City, Phone..." value="${currentSearch}"></div>
+            <div><label for="startDate">Start Date</label><input type="date" id="startDate" value="${currentStartDate}"></div>
+            <div><label for="endDate">End Date</label><input type="date" id="endDate" value="${currentEndDate}"></div>
             <div><label for="sortOrder">Sort By</label>
                 <select id="sortOrder">
                     <option value="amount_desc">Amount (High to Low)</option>
@@ -1381,7 +1322,7 @@ function renderSubmissionsTable(dataToRender) {
                             <td>${data.type === 'amount' ? `₹${parseFloat(data.amount || 0).toFixed(2)}` : data.description}</td>
                             <td>${data.timestamp?.toDate().toLocaleDateString() || 'N/A'}</td>
                             <td class="action-cell">
-                                <button class="view-btn" data-id="${data.id}"><i class="fas fa-eye"></i> View</button>
+                                <button class="view-btn" data-id="${data.id}" data-type="${data.type}"><i class="fas fa-eye"></i> View</button>
                                 <button class="edit-btn" data-id="${data.id}" data-type="${data.type}"><i class="fas fa-edit"></i></button>
                                 <button class="delete-btn" data-id="${data.id}" data-type="${data.type}"><i class="fas fa-trash"></i></button>
                             </td>
@@ -1396,8 +1337,14 @@ function renderSubmissionsTable(dataToRender) {
             </table>`;
     }
 
+    // Place the generated HTML into the container
     submissionsContainer.innerHTML = contentHtml;
-    addTableEventListeners(); // New function to handle listeners
+    
+    // Restore the selected sort option
+    document.getElementById('sortOrder').value = currentSort;
+    
+    // Re-attach all necessary event listeners
+    addTableEventListeners();
 }
     // ADD THESE NEW functions
 function addTableEventListeners() {
