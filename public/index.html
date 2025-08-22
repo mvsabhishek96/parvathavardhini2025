@@ -483,6 +483,39 @@
     font-size: 2rem;
     color: var(--dark-color);
     cursor: pointer;
+}/* CSS for the new toggle buttons */
+.toggle-buttons {
+    display: flex;
+    border: 1px solid var(--secondary-color);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+.toggle-buttons input[type="radio"] {
+    display: none; /* Hide the actual radio button */
+}
+
+.toggle-buttons label {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+    margin-bottom: 0;
+    cursor: pointer;
+    background-color: rgba(255, 255, 255, 0.5);
+    transition: var(--transition);
+    font-weight: 500;
+}
+
+/* Style for the selected button */
+.toggle-buttons input[type="radio"]:checked + label {
+    background: var(--secondary-color);
+    color: white;
+    font-weight: 600;
+}
+
+/* Utility class to hide form fields */
+.hidden-field {
+    display: none;
 }
 
 #modalBody p {
@@ -522,12 +555,6 @@
     color: var(--secondary-color);
     border: 1px solid var(--secondary-color);
 }
-
-#actionButtons {
-    display: flex; /* Ensure buttons are displayed */
-    width: auto; /* Override inline styles */
-    margin: 0; /* Override inline styles */
-}
     
     @media (min-width: 768px) {
         .form-container { padding: 30px; }
@@ -545,9 +572,6 @@
         20%, 40%, 60%, 80% { transform: translateX(5px); }
     }
 </style>
-<footer class="site-footer">
-        <p>Developed by mvsabhishek96@gmail.com</p>
-    </footer>
 </head>
 <body>
     <div class="slideshow">
@@ -612,36 +636,54 @@
         </div>
 
         <div class="form-container hidden" id="customForm">
-            <h2><i class="fas fa-donate"></i> Enter Donation Details</h2>
-            <div class="form-group">
-                <label for="name">Name:</label>
-                <input type="text" id="name" name="name" required>
-            </div>
-            <div class="form-group">
-                <label for="city">City:</label>
-                <input type="text" id="city" name="city" required>
-            </div>
-            <div class="form-group">
-                <label for="gothra">Gothra:</label>
-                <input type="text" id="gothra" name="gothra" required>
-            </div>
-            <div class="form-group">
-                <label for="amount">Amount:</label>
-                <input type="number" id="amount" name="amount" required min="0">
-            </div>
-            <div class="form-group">
-                <label for="phoneNumber">Phone Number:</label>
-                <div class="input-with-icon">
-                    <input type="tel" id="phoneNumber" name="phoneNumber" required placeholder="9876543210">
-                    <i class="fas fa-address-book contact-picker-icon" id="pickContactBtn" title="Pick from contacts"></i>
-                </div>
-            </div>
-            <button id="submitFormButton">
-                <span id="submitButtonText">Submit</span>
-                <i class="fas fa-paper-plane" id="submitButtonIcon"></i>
-            </button>
-            <div class="message" id="message"></div>
+    <h2><i class="fas fa-donate"></i> Enter Donation Details</h2>
+
+    <div class="form-group">
+        <label>Donation Type:</label>
+        <div class="toggle-buttons">
+            <input type="radio" id="typeCash" name="donationType" value="cash" checked>
+            <label for="typeCash">Cash</label>
+            <input type="radio" id="typeInKind" name="donationType" value="inKind">
+            <label for="typeInKind">In-Kind</label>
         </div>
+    </div>
+    
+    <div class="form-group">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+    </div>
+    <div class="form-group">
+        <label for="city">City:</label>
+        <input type="text" id="city" name="city" required>
+    </div>
+    <div class="form-group">
+        <label for="gothra">Gothra:</label>
+        <input type="text" id="gothra" name="gothra" required>
+    </div>
+
+    <div class="form-group" id="amountGroup">
+        <label for="amount">Amount:</label>
+        <input type="number" id="amount" name="amount" required min="0">
+    </div>
+
+    <div class="form-group hidden-field" id="inKindGroup">
+        <label for="inKindDescription">Item Description (e.g., 10kg Rice):</label>
+        <input type="text" id="inKindDescription" name="inKindDescription">
+    </div>
+
+    <div class="form-group">
+        <label for="phoneNumber">Phone Number:</label>
+        <div class="input-with-icon">
+            <input type="tel" id="phoneNumber" name="phoneNumber" required placeholder="9876543210">
+            <i class="fas fa-address-book contact-picker-icon" id="pickContactBtn" title="Pick from contacts"></i>
+        </div>
+    </div>
+    <button id="submitFormButton">
+        <span id="submitButtonText">Submit</span>
+        <i class="fas fa-paper-plane" id="submitButtonIcon"></i>
+    </button>
+    <div class="message" id="message"></div>
+</div>
 
         <div class="form-container hidden" id="confirmation">
             <h2><i class="fas fa-check-circle"></i> Confirm Your Details</h2>
@@ -998,23 +1040,23 @@
     }
 
     async function logout() {
-        try {
-            await signOut(auth);
-            currentCommitteeMember = null;
-            document.getElementById('actionButtons').style.display = 'none';
-            document.getElementById('submissionsContainer').innerHTML = ''; 
-            document.getElementById('submissionsContainer').classList.add('hidden');
-            document.getElementById('email').value = '';
-            document.getElementById('password').value = '';
-            document.getElementById('loginMessage').textContent = '';
-            document.getElementById('loginMessage').className = 'message';
-            showNotification('Logged out successfully!', 'success');
-            showForm('loginForm');
-        } catch (error) {
-            console.error('Logout error:', error);
-            showNotification(`Logout failed: ${error.message}`, 'error');
-        }
+    try {
+        await signOut(auth);
+        currentCommitteeMember = null;
+        document.getElementById('top-bar').style.display = 'none'; // <-- CORRECTED LINE
+        document.getElementById('submissionsContainer').innerHTML = ''; 
+        document.getElementById('submissionsContainer').classList.add('hidden');
+        document.getElementById('email').value = '';
+        document.getElementById('password').value = '';
+        document.getElementById('loginMessage').textContent = '';
+        document.getElementById('loginMessage').className = 'message';
+        showNotification('Logged out successfully!', 'success');
+        showForm('loginForm');
+    } catch (error) {
+        console.error('Logout error:', error);
+        showNotification(`Logout failed: ${error.message}`, 'error');
     }
+ }
     
     // NEW: Function to sanitize phone numbers
     function sanitizePhoneNumber(phone) {
@@ -1030,57 +1072,87 @@
 
     // Submit donation form
     async function submitForm() {
-        if (isSubmitting) return;
-        isSubmitting = true;
-        const message = document.getElementById('message');
-        const submitButton = document.getElementById('submitFormButton');
-        const buttonText = document.getElementById('submitButtonText');
-        const buttonIcon = document.getElementById('submitButtonIcon');
+    if (isSubmitting) return;
 
-        submittedName = document.getElementById('name').value.trim();
-        submittedCity = document.getElementById('city').value.trim();
-        submittedGothra = document.getElementById('gothra').value.trim();
-        submittedAmount = document.getElementById('amount').value.trim();
-        // UPDATED: Sanitize phone number on submit
-        submittedPhoneNumber = sanitizePhoneNumber(document.getElementById('phoneNumber').value);
+    const message = document.getElementById('message');
+    message.textContent = ''; // Clear previous messages
+    isSubmitting = true;
 
-        if (!submittedName || !submittedCity || !submittedGothra || !submittedAmount || !submittedPhoneNumber) {
-            message.textContent = 'Please fill in all fields';
-            message.className = 'message error';
-            isSubmitting = false;
-            return;
-        }
-        if (submittedPhoneNumber.length !== 10) {
-            message.textContent = 'Please enter a valid 10-digit phone number.';
-            message.className = 'message error';
-            isSubmitting = false;
-            return;
-        }
+    // --- New logic to check donation type ---
+    const donationType = document.querySelector('input[name="donationType"]:checked').value;
+    const isCashDonation = donationType === 'cash';
 
+    submittedName = document.getElementById('name').value.trim();
+    submittedCity = document.getElementById('city').value.trim();
+    submittedGothra = document.getElementById('gothra').value.trim();
+    submittedPhoneNumber = sanitizePhoneNumber(document.getElementById('phoneNumber').value);
 
-        submitButton.disabled = true;
-        buttonText.textContent = 'Submitting...';
-        buttonIcon.className = 'fas fa-spinner fa-spin';
-
-        try {
-            showForm('confirmation');
-            document.getElementById('confirmCommitteeMember').textContent = currentCommitteeMember.name;
-            document.getElementById('confirmName').textContent = submittedName;
-            document.getElementById('confirmCity').textContent = submittedCity;
-            document.getElementById('confirmGothra').textContent = submittedGothra;
-            document.getElementById('confirmAmount').textContent = `₹${parseFloat(submittedAmount).toFixed(2)}`;
-            document.getElementById('confirmPhoneNumber').textContent = submittedPhoneNumber;
-        } catch (error) {
-            console.error('Form submission error:', error);
-            message.textContent = `Submission failed: ${error.message}`;
-            message.className = 'message error';
-        } finally {
-            submitButton.disabled = false;
-            buttonText.textContent = 'Submit';
-            buttonIcon.className = 'fas fa-paper-plane';
-            isSubmitting = false;
-        }
+    let donationValue;
+    if (isCashDonation) {
+        donationValue = document.getElementById('amount').value.trim();
+    } else {
+        donationValue = document.getElementById('inKindDescription').value.trim();
     }
+    // --- End of new logic ---
+
+    if (!submittedName || !submittedCity || !submittedGothra || !donationValue || !submittedPhoneNumber) {
+        message.textContent = 'Please fill in all fields';
+        message.className = 'message error';
+        isSubmitting = false;
+        return;
+    }
+    if (submittedPhoneNumber.length !== 10) {
+        message.textContent = 'Please enter a valid 10-digit phone number.';
+        message.className = 'message error';
+        isSubmitting = false;
+        return;
+    }
+    
+    // Store the value for the next step
+    if(isCashDonation) {
+        submittedAmount = donationValue;
+    } else {
+        // We'll reuse the 'submittedAmount' variable for simplicity, but it now holds the description
+        submittedAmount = donationValue; 
+    }
+
+    const submitButton = document.getElementById('submitFormButton');
+    submitButton.disabled = true;
+    document.getElementById('submitButtonText').textContent = 'Submitting...';
+    document.getElementById('submitButtonIcon').className = 'fas fa-spinner fa-spin';
+
+    try {
+        showForm('confirmation');
+        document.getElementById('confirmCommitteeMember').textContent = currentCommitteeMember.name;
+        document.getElementById('confirmName').textContent = submittedName;
+        document.getElementById('confirmCity').textContent = submittedCity;
+        document.getElementById('confirmGothra').textContent = submittedGothra;
+        document.getElementById('confirmPhoneNumber').textContent = submittedPhoneNumber;
+        
+        // --- Update confirmation screen dynamically ---
+        document.querySelector('#confirmAmount').parentNode.querySelector('strong').textContent = 'Amount:';
+        
+        if (isCashDonation) {
+            amountRow.style.display = 'flex';
+            document.getElementById('confirmAmount').textContent = `₹${parseFloat(donationValue).toFixed(2)}`;
+        } else {
+            // Hide amount row and show description instead (assuming you add a row for it)
+            // For now, let's just change the label and value
+            amountRow.querySelector('strong').textContent = 'Items:';
+            document.getElementById('confirmAmount').textContent = donationValue;
+        }
+
+    } catch (error) {
+        console.error('Form submission error:', error);
+        message.textContent = `Submission failed: ${error.message}`;
+        message.className = 'message error';
+    } finally {
+        submitButton.disabled = false;
+        document.getElementById('submitButtonText').textContent = 'Submit';
+        document.getElementById('submitButtonIcon').className = 'fas fa-paper-plane';
+        isSubmitting = false;
+    }
+}
     function openWhatsApp(phone, message) {
         const whatsappUrl = `https://wa.me/91${phone}?text=${encodeURIComponent(message)}`;
         
@@ -1094,45 +1166,65 @@
     }
 
     async function saveAndSendWhatsapp() {
-        if (isSaveWhatsappClicked) return;
-        isSaveWhatsappClicked = true;
-        const saveButton = document.getElementById('saveWhatsappButton');
-        saveButton.disabled = true;
-        saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+    if (isSaveWhatsappClicked) return;
+    isSaveWhatsappClicked = true;
+    const saveButton = document.getElementById('saveWhatsappButton');
+    saveButton.disabled = true;
+    saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
 
-        try {
-            if (!/^[6-9]\d{9}$/.test(submittedPhoneNumber)) {
-                throw new Error('Please enter a valid 10-digit Indian phone number');
-            }
+    try {
+        const donationType = document.querySelector('input[name="donationType"]:checked').value;
+        const isCashDonation = donationType === 'cash';
+
+        let collectionName;
+        let dataToSave;
+        let donationDisplayForWhatsapp;
+
+        // 1. Prepare data based on donation type
+        if (isCashDonation) {
+            collectionName = "Submissions";
             const amount = parseFloat(submittedAmount);
             if (isNaN(amount)) throw new Error('Please enter a valid amount');
-            if (!currentCommitteeMember || !currentCommitteeMember.email || !currentCommitteeMember.name) {
-                throw new Error('Committee member information is incomplete. Please log in again.');
-            }
+            
+            dataToSave = { amount: amount };
+            donationDisplayForWhatsapp = `💰 *చందా మొత్తము:* ₹${amount.toFixed(2)}`;
+        } else {
+            collectionName = "InKindDonations";
+            if (!submittedAmount) throw new Error('Please enter the item description');
+            
+            dataToSave = { description: submittedAmount };
+            donationDisplayForWhatsapp = `🎁 *వస్తువులు:* ${submittedAmount}`;
+        }
+        
+        const commonData = {
+            name: submittedName,
+            city: submittedCity,
+            gothra: submittedGothra,
+            phoneNumber: submittedPhoneNumber,
+            timestamp: serverTimestamp()
+        };
 
-            const submissionsRef = collection(db, "CommitteeMembers", currentCommitteeMember.email, "Submissions");
-            await addDoc(submissionsRef, {
-                name: submittedName,
-                city: submittedCity,
-                gothra: submittedGothra,
-                amount: amount,
-                phoneNumber: submittedPhoneNumber,
-                timestamp: serverTimestamp()
-            });
+        // Combine common data with type-specific data
+        const finalData = { ...commonData, ...dataToSave };
+        
+        // 2. Save to the correct Firestore collection
+        const docRef = collection(db, "CommitteeMembers", currentCommitteeMember.email, collectionName);
+        await addDoc(docRef, finalData);
 
-            const whatsappMessage = `✨ *శ్రీ మత్ పర్వత వర్ధని సమేత శ్రీ రామలింగేశ్వర స్వామి వారి దేవస్థానం* ✨
+        // 3. Create the full, dynamic WhatsApp message
+        const whatsappMessage = `✨ *శ్రీ మత్ పర్వత వర్ధని సమేత శ్రీ రామలింగేశ్వర స్వామి వారి దేవస్థానం* ✨
 🏛 *నాగెళ్లముడుపు-523371*
 
 ━━━━━━━━━━━━━━━━━━━━━━━━
 
 📋 *చందా వివరములు:*
 
- 📛 *పేరు:* ${submittedName}
- 🏙️ *ఊరు:* ${submittedCity}
- 🕉️ *గోత్రం:* ${submittedGothra}
- 💰 *చందా మొత్తము:* ₹${parseFloat(submittedAmount).toFixed(2)}
- 📱 *ఫోన్ నెంబర్:* ${submittedPhoneNumber}
- 👤 *చందా స్వీకరించిన వారు:* ${currentCommitteeMember.name} (${currentCommitteeMember.mobile})
+📛 *పేరు:* ${submittedName}
+🏙️ *ఊరు:* ${submittedCity}
+🕉️ *గోత్రం:* ${submittedGothra}
+${donationDisplayForWhatsapp}
+📱 *ఫోన్ నెంబర్:* ${submittedPhoneNumber}
+👤 *చందా స్వీకరించిన వారు:* ${currentCommitteeMember.name} (${currentCommitteeMember.mobile})
 
 ━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -1156,27 +1248,30 @@ https://maps.app.goo.gl/5NKoQcKA87QVDXm37
 *కూనపులి శ్యామల దుర్గా ప్రసాద్* 📱 9949844807
 
 ᵈᵉᵛᵉˡᵒᵖᵉᵈ ᵇʸ ᵐᵛˢᵃᵇʰⁱˢʰᵉᵏ⁹⁶@ᵍᵐᵃⁱˡ.ᶜᵒᵐ`;
+        
+        openWhatsApp(submittedPhoneNumber, whatsappMessage);
+        
+        // 4. Reset all relevant form fields
+        document.getElementById('name').value = '';
+        document.getElementById('city').value = '';
+        document.getElementById('gothra').value = '';
+        document.getElementById('amount').value = '';
+        document.getElementById('inKindDescription').value = '';
+        document.getElementById('phoneNumber').value = '';
 
-            openWhatsApp(submittedPhoneNumber, whatsappMessage);
+        showNotification('Donation saved successfully!', 'success');
+        showForm('customForm');
 
-            document.getElementById('name').value = '';
-            document.getElementById('city').value = '';
-            document.getElementById('gothra').value = '';
-            document.getElementById('amount').value = '';
-            document.getElementById('phoneNumber').value = '';
-
-            showNotification('Donation saved successfully!', 'success');
-            showForm('customForm');
-        } catch (error) {
-            console.error('Save error:', error);
-            showNotification(`Error: ${error.message}`, 'error');
-            showForm('confirmation');
-        } finally {
-            isSaveWhatsappClicked = false;
-            saveButton.disabled = false;
-            saveButton.innerHTML = '<i class="fab fa-whatsapp"></i> Save & WhatsApp';
-        }
+    } catch (error) {
+        console.error('Save error:', error);
+        showNotification(`Error: ${error.message}`, 'error');
+        showForm('confirmation'); // Go back to confirmation on error
+    } finally {
+        isSaveWhatsappClicked = false;
+        saveButton.disabled = false;
+        saveButton.innerHTML = '<i class="fab fa-whatsapp"></i> Save & WhatsApp';
     }
+}
 
     async function viewSubmissions() {
     if (!currentCommitteeMember) return;
@@ -1429,7 +1524,9 @@ function hideSubmissionModal() {
 
         try {
             saveButton.disabled = true;
-            const docRef = doc(db, "CommitteeMembers", currentCommitteeMember.email, "Submissions", docId);
+            const docType = document.getElementById('editDocType').value; // Get the type
+            const collectionName = docType === 'amount' ? "Submissions" : "InKindDonations"; // Determine collection
+            const docRef = doc(db, "CommitteeMembers", currentCommitteeMember.email, collectionName, docId); // Use it here
             await updateDoc(docRef, {
                 name: newName,
                 city: newCity,
@@ -1519,7 +1616,9 @@ function downloadXlsx() {
     }
 
     function goBack() {
-        showForm('customForm');
+     // Also reset the confirmation label when going back
+     document.querySelector('#confirmAmount').parentNode.querySelector('strong').textContent = 'Amount:';
+     showForm('customForm');
     }
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -1543,6 +1642,18 @@ function downloadXlsx() {
     // Contact Picker Listeners
     document.getElementById('pickContactBtn')?.addEventListener('click', () => pickContact('phoneNumber'));
     document.getElementById('editPickContactBtn')?.addEventListener('click', () => pickContact('editPhoneNumber'));
+    
+    // --- THIS IS THE NEW CODE FOR THE TOGGLE ---
+    // It listens for clicks on the "Cash" or "In-Kind" radio buttons
+    document.querySelectorAll('input[name="donationType"]').forEach(radio => {
+        radio.addEventListener('change', (event) => {
+            const isCash = event.target.value === 'cash';
+            // Show/hide the correct input field based on the selection
+            document.getElementById('amountGroup').classList.toggle('hidden-field', !isCash);
+            document.getElementById('inKindGroup').classList.toggle('hidden-field', isCash);
+        });
+    });
+    // --- END OF NEW CODE ---
 
     // Modal Close Button
     document.getElementById('modalCloseBtn')?.addEventListener('click', hideSubmissionModal);
