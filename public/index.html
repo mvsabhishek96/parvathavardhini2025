@@ -671,15 +671,23 @@
             <div class="message" id="editMessage"></div>
         </div>
         <div id="submissionsContainer" class="submissions-container"></div>
-        <div id="top-bar" style="display: none;">
+        <div id="top-bar" style="display: none; width: 100%; max-width: 500px; margin: 15px auto;">
 
-
-        <div id="actionButtons" style="display: none; width: 100%; max-width: 500px; margin: 15px auto;">
-     <div id="top-bar" style="display: none; width: 100%; max-width: 500px; margin: 15px auto;">
-     <div id="userInfo" class="user-info-display">
+    <div id="userInfo" class="user-info-display">
         <i class="fas fa-user-check"></i>
         <span id="loggedInUserName"></span>
     </div>
+
+    <div class="action-buttons">
+        <button id="viewSubmissionsButton">
+            <i class="fas fa-list"></i> View Submissions
+        </button>
+        <button id="logoutButton">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+    </div>
+
+  </div>
     <div id="actionButtons" class="action-buttons">
         <button id="viewSubmissionsButton">
             <i class="fas fa-list"></i> View Submissions
