@@ -1,4 +1,4 @@
-// Version: 2.0 (Search, Sort, and Mobile View Update)
+// Version: 2.1 (Search, Sort, and Mobile View Update)
 const CACHE_NAME = 'donation-portal-cache-v2'; // <-- Changed v1 to v2
 const urlsToCache = [
   '/',
