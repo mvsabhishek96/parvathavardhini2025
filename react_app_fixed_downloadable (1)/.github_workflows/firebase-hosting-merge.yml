@@ -1,0 +1,17 @@
+name: Deploy Live
+on:
+  push:
+    branches: [ main ]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build (if needed)
+        run: echo "No build step needed"
+      - name: Deploy
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          projectId: "parvathavardhini2025"
+          channelId: live
