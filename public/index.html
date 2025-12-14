@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#800000">
+    <title>Committee Donation Form</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Laila:wght@600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+
+<body>
+    <div class="slideshow">
+        <img src="images/image1.jpeg" alt="Slide 1" class="active">
+        <img src="images/image2.jpg" alt="Slide 2">
+        <img src="images/image3.jpeg" alt="Slide 3">
+    </div>
+
+    <div class="container">
+        <div class="logo">
+            <h1><i class="fas fa-om"></i> Donation Portal</h1>
+        </div>
+
+        <div id="top-bar" style="display: none; width: 100%; max-width: 1000px; margin: 15px auto;">
+            <div id="userInfo" class="user-info-display">
+                <i class="fas fa-user-check"></i>
+                <span id="loggedInUserName"></span>
+            </div>
+            <div class="action-buttons">
+                <button id="viewSubmissionsButton">
+                    <i class="fas fa-list"></i> View Submissions
+                </button>
+                <button id="logoutButton">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress" id="formProgress"></div>
+        </div>
+
+        <div class="form-container active" id="loginForm">
+            <h2><i class="fas fa-user-circle"></i> Committee Member Login</h2>
+            <div class="form-group" id="signupNameGroup" style="display: none;">
+                <label for="signupName">Your Name:</label>
+                <input type="text" id="signupName" name="signupName" placeholder="Your Full Name">
+            </div>
+            <div class="form-group" id="signupMobileGroup" style="display: none;">
+                <label for="signupMobile">Your Mobile Number:</label>
+                <input type="tel" id="signupMobile" name="signupMobile" placeholder="9876543210">
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required placeholder="your@email.com">
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button id="submitAuthButton">
+                <span id="authButtonText">Login</span>
+                <i class="fas fa-sign-in-alt" id="authButtonIcon"></i>
+            </button>
+            <div class="auth-toggle" id="authToggle">
+                Don't have an account? <a href="#" id="signUpLink">Sign up</a>
+            </div>
+            <div class="message" id="loginMessage"></div>
+            <button id="resendVerificationButton" class="secondary-btn" style="display: none; margin-top: 10px;">
+                <i class="fas fa-redo"></i> Resend Verification Email
+            </button>
+        </div>
+
+        <div class="form-container hidden" id="customForm">
+            <h2><i class="fas fa-donate"></i> Enter Donation Details</h2>
+            <div class="form-group">
+                <label>Donation Type:</label>
+                <div class="toggle-buttons">
+                    <input type="radio" id="typeCash" name="donationType" value="cash" checked>
+                    <label for="typeCash">Cash</label>
+                    <input type="radio" id="typeInKind" name="donationType" value="inKind">
+                    <label for="typeInKind">In-Kind</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="city">City:</label>
+                <input type="text" id="city" name="city" required>
+            </div>
+            <div class="form-group">
+                <label for="gothra">Gothra:</label>
+                <input type="text" id="gothra" name="gothra" required>
+            </div>
+            <div class="form-group" id="amountGroup">
+                <label for="amount">Amount:</label>
+                <input type="number" id="amount" name="amount" required min="0">
+            </div>
+            <div class="form-group hidden-field" id="inKindGroup">
+                <label for="inKindDescription">Item Description (e.g., 10kg Rice):</label>
+                <input type="text" id="inKindDescription" name="inKindDescription">
+            </div>
+            <div class="form-group">
+                <label for="phoneNumber">Phone Number:</label>
+                <div class="input-with-icon">
+                    <input type="tel" id="phoneNumber" name="phoneNumber" required placeholder="9876543210">
+                    <i class="fas fa-address-book contact-picker-icon" id="pickContactBtn"
+                        title="Pick from contacts"></i>
+                </div>
+            </div>
+            <button id="submitFormButton">
+                <span id="submitButtonText">Submit</span>
+                <i class="fas fa-paper-plane" id="submitButtonIcon"></i>
+            </button>
+            <div class="message" id="message"></div>
+        </div>
+
+        <div class="form-container hidden" id="confirmation">
+            <h2><i class="fas fa-check-circle"></i> Confirm Your Details</h2>
+            <div class="confirmation-details">
+                <p><strong>Committee Member:</strong> <span id="confirmCommitteeMember"></span></p>
+                <p><strong>Name:</strong> <span id="confirmName"></span></p>
+                <p><strong>City:</strong> <span id="confirmCity"></span></p>
+                <p><strong>Gothra:</strong> <span id="confirmGothra"></span></p>
+                <p><strong>Amount:</strong> <span id="confirmAmount"></span></p>
+                <p><strong>Phone Number:</strong> <span id="confirmPhoneNumber"></span></p>
+            </div>
+            <button id="saveWhatsappButton" class="success-btn">
+                <i class="fab fa-whatsapp"></i> Save & WhatsApp
+            </button>
+            <button id="goBackButton" class="secondary-btn" style="margin-top: 10px;">
+                <i class="fas fa-arrow-left"></i> Go Back
+            </button>
+        </div>
+
+        <div class="form-container hidden" id="redirectMessage">
+            <h2><i class="fas fa-spinner fa-spin"></i> Processing...</h2>
+            <p>Your donation is being recorded. Please wait.</p>
+            <div class="loader"></div>
+        </div>
+
+        <div class="form-container hidden" id="editForm">
+            <h2><i class="fas fa-edit"></i> Edit Submission</h2>
+            <input type="hidden" id="editDocId">
+            <input type="hidden" id="editDocType">
+            <div class="form-group">
+                <label for="editName">Name:</label>
+                <input type="text" id="editName" name="editName" required>
+            </div>
+            <div class="form-group">
+                <label for="editCity">City:</label>
+                <input type="text" id="editCity" name="editCity" required>
+            </div>
+            <div class="form-group">
+                <label for="editGothra">Gothra:</label>
+                <input type="text" id="editGothra" name="editGothra" required>
+            </div>
+            <div class="form-group">
+                <label for="editAmount">Amount:</label>
+                <input type="number" id="editAmount" name="editAmount" required min="0">
+            </div>
+            <div class="form-group">
+                <label for="editPhoneNumber">Phone Number:</label>
+                <div class="input-with-icon">
+                    <input type="tel" id="editPhoneNumber" name="editPhoneNumber" required placeholder="9876543210">
+                    <i class="fas fa-address-book contact-picker-icon" id="editPickContactBtn"
+                        title="Pick from contacts"></i>
+                </div>
+            </div>
+            <div class="action-buttons">
+                <button id="saveEditedSubmissionButton" class="success-btn">
+                    <i class="fas fa-save"></i> Save
+                </button>
+                <button id="cancelEditButton" class="secondary-btn">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+            </div>
+            <div class="message" id="editMessage"></div>
+        </div>
+
+        <div id="submissionsContainer" class="submissions-container hidden"></div>
+
+    </div>
+
+    <div id="submissionModal" class="modal-overlay">
+        <div class="modal-content">
+            <span id="modalCloseBtn" class="modal-close-btn">&times;</span>
+            <h2><i class="fas fa-file-invoice-dollar"></i> Donation Details</h2>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <div class="floating-notification" id="floatingNotification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notificationMessage">Operation successful!</span>
+    </div>
+
+    <footer class="site-footer">
+        <p>Developed by mvsabhishek96@gmail.com</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script type="module">
+        import {
+            initializeApp
+        } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js';
+        import {
+            getAuth,
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword,
+            sendEmailVerification,
+            signOut,
+            onAuthStateChanged
+        } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
+        import {
+            getFirestore,
+            collection,
+            addDoc,
+            getDocs,
+            setDoc,
+            getDoc,
+            doc,
+            query,
+            updateDoc,
+            deleteDoc,
+            serverTimestamp
+        } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
+        import { getAnalytics } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-analytics.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBNxvQA-82MgxXAzkLRabadKt9I61FMRe8",
+            authDomain: "parvathavardhini2025.firebaseapp.com",
+            projectId: "parvathavardhini2025",
+            storageBucket: "parvathavardhini2025.firebasestorage.app",
+            messagingSenderId: "902451328910",
+            appId: "1:902451328910:web:b7afd9a70cdace298396df",
+            measurementId: "G-QWCEJSLQF5"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const analytics = getAnalytics(app);
+
+        // DOM Elements
+        const formContainers = {
+            login: document.getElementById('loginForm'),
+            customForm: document.getElementById('customForm'),
+            confirmation: document.getElementById('confirmation'),
+            redirectMessage: document.getElementById('redirectMessage'),
+            editForm: document.getElementById('editForm'),
+            submissionsContainer: document.getElementById('submissionsContainer')
+        };
+        const TEMPLE_IMAGE_URL = 'https://parvathavardhini.short.gy/MEDIA';
+        let currentCommitteeMember = null;
+        let submittedName, submittedCity, submittedGothra, submittedAmount, submittedPhoneNumber;
+        let isSubmitting = false;
+        let isSaveWhatsappClicked = false;
+        let authMode = 'signIn';
+        let allSubmissionsMaster = [];
+        let currentlyDisplayedData = [];
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('floatingNotification');
+            const icon = notification.querySelector('i');
+            const messageElement = document.getElementById('notificationMessage');
+
+            messageElement.textContent = message;
+            notification.className = 'floating-notification';
+            if (type === 'success') {
+                icon.className = 'fas fa-check-circle';
+                notification.classList.add('success');
+            } else if (type === 'error') {
+                icon.className = 'fas fa-exclamation-circle';
+                notification.classList.add('error');
+            } else if (type === 'warning') {
+                icon.className = 'fas fa-info-circle';
+                notification.classList.add('warning');
+            }
+            notification.classList.add('show');
+            setTimeout(() => notification.classList.remove('show'), 3000);
+        }
+
+        function showForm(formId) {
+            Object.values(formContainers).forEach(form => {
+                if (form) {
+                    form.classList.add('hidden');
+                    form.classList.remove('active');
+                }
+            });
+            const formToShow = formContainers[formId] || document.getElementById(formId);
+            if (formToShow) {
+                setTimeout(() => {
+                    formToShow.classList.remove('hidden');
+                    formToShow.classList.add('active');
+                    updateProgressBar(formId);
+                }, 50);
+            }
+        }
+
+        function updateProgressBar(currentForm) {
+            const progressBar = document.getElementById('formProgress');
+            let progress = 0;
+            if (currentForm === 'loginForm') progress = 20;
+            else if (currentForm === 'customForm') progress = 40;
+            else if (currentForm === 'confirmation') progress = 80;
+            else if (currentForm === 'redirectMessage') progress = 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        function toggleAuthMode(mode) {
+            authMode = mode;
+            const heading = document.getElementById('loginForm').querySelector('h2');
+            const toggleLink = document.getElementById('authToggle');
+            const buttonText = document.getElementById('authButtonText');
+            const buttonIcon = document.getElementById('authButtonIcon');
+            const nameGroup = document.getElementById('signupNameGroup');
+            const mobileGroup = document.getElementById('signupMobileGroup');
+
+            if (mode === 'signUp') {
+                heading.innerHTML = '<i class="fas fa-user-plus"></i> Committee Member Sign Up';
+                toggleLink.innerHTML = 'Already have an account? <a href="#" id="signInLink">Sign in</a>';
+                buttonText.textContent = 'Sign Up';
+                buttonIcon.className = 'fas fa-user-plus';
+                nameGroup.style.display = 'block';
+                mobileGroup.style.display = 'block';
+                document.getElementById('signupName').required = true;
+                document.getElementById('signupMobile').required = true;
+            } else {
+                heading.innerHTML = '<i class="fas fa-user-circle"></i> Committee Member Login';
+                toggleLink.innerHTML = 'Don\'t have an account? <a href="#" id="signUpLink">Sign up</a>';
+                buttonText.textContent = 'Login';
+                buttonIcon.className = 'fas fa-sign-in-alt';
+                nameGroup.style.display = 'none';
+                mobileGroup.style.display = 'none';
+                document.getElementById('signupName').required = false;
+                document.getElementById('signupMobile').required = false;
+            }
+            document.getElementById('loginMessage').textContent = '';
+            document.getElementById('resendVerificationButton').style.display = 'none';
+            initializeAuthToggle();
+        }
+
+        async function handleAuthAction() {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const name = document.getElementById('signupName')?.value.trim() || '';
+            const mobile = document.getElementById('signupMobile')?.value.trim() || '';
+            const loginMessage = document.getElementById('loginMessage');
+            const submitButton = document.getElementById('submitAuthButton');
+
+            submitButton.disabled = true;
+            document.getElementById('authButtonText').textContent = 'Processing...';
+            document.getElementById('authButtonIcon').className = 'fas fa-spinner fa-spin';
+
+            try {
+                if (authMode === 'signUp') {
+                    if (!name || !mobile || !email || !password) {
+                        throw new Error('Please fill all fields');
+                    }
+                    if (!/^[6-9]\d{9}$/.test(mobile)) {
+                        throw new Error('Please enter a valid 10-digit Indian mobile number');
+                    }
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    await sendEmailVerification(userCredential.user);
+                    await setDoc(doc(db, 'CommitteeMembers', email), {
+                        email: email,
+                        name: name,
+                        mobile: mobile,
+                        timestamp: serverTimestamp()
+                    });
+                    loginMessage.textContent = 'Account created! Please verify your email.';
+                    loginMessage.className = 'message success';
+                    showNotification('Verification email sent!', 'success');
+                    await signOut(auth);
+                    toggleAuthMode('signIn');
+                } else {
+                    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                    const user = userCredential.user;
+
+                    if (!user.emailVerified) {
+                        throw new Error('Please verify your email first');
+                    }
+
+                    const userDoc = await getDoc(doc(db, 'CommitteeMembers', user.email));
+                    if (!userDoc.exists()) {
+                        throw new Error('Committee member data not found');
+                    }
+
+                    currentCommitteeMember = {
+                        email: user.email,
+                        name: userDoc.data().name,
+                        mobile: userDoc.data().mobile
+                    };
+
+                    showForm('customForm');
+                    document.getElementById('top-bar').style.display = 'flex';
+                    showNotification('Login successful!', 'success');
+                }
+            } catch (error) {
+                console.error('Auth error:', error);
+                loginMessage.textContent = getFriendlyErrorMessage(error);
+                loginMessage.className = 'message error';
+                loginMessage.classList.add('shake');
+                setTimeout(() => loginMessage.classList.remove('shake'), 500);
+            } finally {
+                submitButton.disabled = false;
+                document.getElementById('authButtonText').textContent = authMode === 'signUp' ? 'Sign Up' : 'Login';
+                document.getElementById('authButtonIcon').className = authMode === 'signUp' ? 'fas fa-user-plus' : 'fas fa-sign-in-alt';
+            }
+        }
+
+        function getFriendlyErrorMessage(error) {
+            switch (error.code) {
+                case 'auth/email-already-in-use': return 'This email is already registered. Please sign in.';
+                case 'auth/invalid-email': return 'Please enter a valid email address.';
+                case 'auth/weak-password': return 'Password should be at least 6 characters.';
+                case 'auth/user-not-found': return 'No account found with this email. Please sign up.';
+                case 'auth/wrong-password': return 'Incorrect password. Please try again.';
+                case 'auth/too-many-requests': return 'Too many attempts. Please try again later.';
+                default: return `Authentication failed: ${error.message}`;
+            }
+        }
+
+        async function resendVerificationEmail() {
+            const user = auth.currentUser;
+            const loginMessage = document.getElementById('loginMessage');
+            const resendButton = document.getElementById('resendVerificationButton');
+
+            if (user) {
+                try {
+                    resendButton.disabled = true;
+                    resendButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+                    await sendEmailVerification(user);
+                    loginMessage.textContent = 'Verification email resent! Please check your inbox.';
+                    loginMessage.className = 'message success';
+                    showNotification('Verification email sent!', 'success');
+                    setTimeout(() => {
+                        resendButton.disabled = false;
+                        resendButton.innerHTML = '<i class="fas fa-redo"></i> Resend Verification Email';
+                    }, 3000);
+                } catch (error) {
+                    console.error('Resend verification error:', error);
+                    loginMessage.textContent = `Failed to resend verification: ${error.message}`;
+                    loginMessage.className = 'message error';
+                    resendButton.disabled = false;
+                    resendButton.innerHTML = '<i class="fas fa-redo"></i> Resend Verification Email';
+                }
+            }
+        }
+
+        async function logout() {
+            try {
+                await signOut(auth);
+                currentCommitteeMember = null;
+                document.getElementById('top-bar').style.display = 'none';
+                document.getElementById('submissionsContainer').innerHTML = '';
+                document.getElementById('submissionsContainer').classList.add('hidden');
+                document.getElementById('email').value = '';
+                document.getElementById('password').value = '';
+                document.getElementById('loginMessage').textContent = '';
+                document.getElementById('loginMessage').className = 'message';
+                showNotification('Logged out successfully!', 'success');
+                showForm('loginForm');
+            } catch (error) {
+                console.error('Logout error:', error);
+                showNotification(`Logout failed: ${error.message}`, 'error');
+            }
+        }
+
+        function sanitizePhoneNumber(phone) {
+            if (!phone) return '';
+            let sanitized = phone.replace(/\D/g, '');
+            if (sanitized.startsWith('91') && sanitized.length > 10) {
+                sanitized = sanitized.substring(2);
+            }
+            return sanitized;
+        }
+
+        async function submitForm() {
+            if (isSubmitting) return;
+            const message = document.getElementById('message');
+            message.textContent = '';
+            isSubmitting = true;
+
+            const donationType = document.querySelector('input[name="donationType"]:checked').value;
+            const isCashDonation = donationType === 'cash';
+
+            submittedName = document.getElementById('name').value.trim();
+            submittedCity = document.getElementById('city').value.trim();
+            submittedGothra = document.getElementById('gothra').value.trim();
+            submittedPhoneNumber = sanitizePhoneNumber(document.getElementById('phoneNumber').value);
+
+            let donationValue;
+            if (isCashDonation) {
+                donationValue = document.getElementById('amount').value.trim();
+            } else {
+                donationValue = document.getElementById('inKindDescription').value.trim();
+            }
+
+            if (!submittedName || !submittedCity || !submittedGothra || !donationValue || !submittedPhoneNumber) {
+                message.textContent = 'Please fill in all fields';
+                message.className = 'message error';
+                isSubmitting = false;
+                return;
+            }
+            if (submittedPhoneNumber.length !== 10) {
+                message.textContent = 'Please enter a valid 10-digit phone number.';
+                message.className = 'message error';
+                isSubmitting = false;
+                return;
+            }
+
+            if (isCashDonation) {
+                submittedAmount = donationValue;
+            } else {
+                submittedAmount = donationValue;
+            }
+
+            const submitButton = document.getElementById('submitFormButton');
+            submitButton.disabled = true;
+            document.getElementById('submitButtonText').textContent = 'Submitting...';
+            document.getElementById('submitButtonIcon').className = 'fas fa-spinner fa-spin';
+
+            try {
+                showForm('confirmation');
+                document.getElementById('confirmCommitteeMember').textContent = currentCommitteeMember.name;
+                document.getElementById('confirmName').textContent = submittedName;
+                document.getElementById('confirmCity').textContent = submittedCity;
+                document.getElementById('confirmGothra').textContent = submittedGothra;
+                document.getElementById('confirmPhoneNumber').textContent = submittedPhoneNumber;
+
+                const amountRow = document.getElementById('confirmAmount').parentNode;
+                amountRow.querySelector('strong').textContent = 'Amount:';
+
+                if (isCashDonation) {
+                    amountRow.style.display = 'flex';
+                    document.getElementById('confirmAmount').textContent = `₹${parseFloat(donationValue).toFixed(2)}`;
+                } else {
+                    amountRow.querySelector('strong').textContent = 'Items:';
+                    document.getElementById('confirmAmount').textContent = donationValue;
+                }
+
+            } catch (error) {
+                console.error('Form submission error:', error);
+                message.textContent = `Submission failed: ${error.message}`;
+                message.className = 'message error';
+            } finally {
+                submitButton.disabled = false;
+                document.getElementById('submitButtonText').textContent = 'Submit';
+                document.getElementById('submitButtonIcon').className = 'fas fa-paper-plane';
+                isSubmitting = false;
+            }
+        }
+
+        function openWhatsApp(phone, message) {
+            const whatsappUrl = `https://wa.me/91${phone}?text=${encodeURIComponent(message)}`;
+            const link = document.createElement('a');
+            link.href = whatsappUrl;
+            link.target = '_blank';
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        async function saveAndSendWhatsapp() {
+            if (isSaveWhatsappClicked) return;
+            isSaveWhatsappClicked = true;
+            const saveButton = document.getElementById('saveWhatsappButton');
+            saveButton.disabled = true;
+            saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+            try {
+                const donationType = document.querySelector('input[name="donationType"]:checked').value;
+                const isCashDonation = donationType === 'cash';
+
+                let collectionName;
+                let dataToSave;
+                let donationDisplayForWhatsapp;
+
+                if (isCashDonation) {
+                    collectionName = "Submissions";
+                    const amount = parseFloat(submittedAmount);
+                    if (isNaN(amount)) throw new Error('Please enter a valid amount');
+
+                    dataToSave = { amount: amount };
+                    donationDisplayForWhatsapp = `💰 *చందా మొత్తము:* ₹${amount.toFixed(2)}`;
+                } else {
+                    collectionName = "InKindDonations";
+                    if (!submittedAmount) throw new Error('Please enter the item description');
+
+                    dataToSave = { description: submittedAmount };
+                    donationDisplayForWhatsapp = `🎁 *వస్తువులు:* ${submittedAmount}`;
+                }
+
+                const commonData = {
+                    name: submittedName,
+                    city: submittedCity,
+                    gothra: submittedGothra,
+                    phoneNumber: submittedPhoneNumber,
+                    timestamp: serverTimestamp()
+                };
+
+                const finalData = { ...commonData, ...dataToSave };
+
+                const docRef = collection(db, "CommitteeMembers", currentCommitteeMember.email, collectionName);
+                await addDoc(docRef, finalData);
+
+                const whatsappMessage = `✨ *శ్రీ మత్ పర్వత వర్ధని సమేత శ్రీ రామలింగేశ్వర స్వామి వారి దేవస్థానం* ✨
+🏛 *నాగెళ్లముడుపు-523371*
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 *చందా వివరములు:*
+
+📛 *పేరు:* ${submittedName}
+🏙️ *ఊరు:* ${submittedCity}
+🕉️ *గోత్రం:* ${submittedGothra}
+${donationDisplayForWhatsapp}
+📱 *ఫోన్ నెంబర్:* ${submittedPhoneNumber}
+👤 *చందా స్వీకరించిన వారు:* ${currentCommitteeMember.name} (${currentCommitteeMember.mobile})
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+📸 *దేవస్థానం నందు జరిగిన ఉత్సవాలు, వేడుకలు వీక్షించుటకు:*
+${TEMPLE_IMAGE_URL}
+
+🛕 *దేవస్థానం ఉత్సవాల తాజా ఫోటోలు,మరియు అప్డేట్స్ కోసం వాట్సాప్ గ్రూప్‌లో చేరండి:*
+ https://parvathavardhini.short.gy/WHATSAPP
+
+📄 *ఆహ్వాన పత్రిక PDF లింక్:*
+ https://parvathavardhini.short.gy/temple-pdf
+
+📍 *దేవస్థానం గూగుల్ మ్యాప్స్ లొకేషన్:*
+ https://parvathavardhini.short.gy/GOOGLEMAPS
+   
+🖥️ *దేవస్థానం ఇన్స్టాగ్రామ్ పేజీ*🔗  
+https://parvathavardhini.short.gy/INSTAGRAM
+
+🖥️ *దేవస్థానం ఫేస్బుక్ పేజీ*🔗
+https://parvathavardhini.short.gy/FACEBOOK
+━━━━━━━━━━━━━━━━━━━━━━━━
+🙏 *Thank you for your generous donation!* 🙏
+
+📞 *నిత్య పూజల వివరములకు సంప్రదించగలరు:*
+*కూనపులి శ్యామల దుర్గా ప్రసాద్* 📱 9949844807
+
+ ᵈᵉᵛᵉˡᵒᵖᵉᵈ ᵇʸ ᵐᵛˢᵃᵇʰⁱˢʰᵉᵏ⁹⁶@ᵍᵐᵃⁱˡ.ᶜᵒᵐ`;
+
+                openWhatsApp(submittedPhoneNumber, whatsappMessage);
+
+                document.getElementById('name').value = '';
+                document.getElementById('city').value = '';
+                document.getElementById('gothra').value = '';
+                document.getElementById('amount').value = '';
+                document.getElementById('inKindDescription').value = '';
+                document.getElementById('phoneNumber').value = '';
+
+                showNotification('Donation saved successfully!', 'success');
+                showForm('customForm');
+
+                if (allSubmissionsMaster.length > 0 || document.getElementById('submissionsContainer').innerHTML !== '') {
+                    viewSubmissions();
+                }
+
+            } catch (error) {
+                console.error('Save error:', error);
+                showNotification(`Error: ${error.message}`, 'error');
+                showForm('confirmation');
+            } finally {
+                isSaveWhatsappClicked = false;
+                saveButton.disabled = false;
+                saveButton.innerHTML = '<i class="fab fa-whatsapp"></i> Save & WhatsApp';
+            }
+        }
+
+        async function viewSubmissions() {
+            if (!currentCommitteeMember) return;
+            const submissionsContainer = document.getElementById('submissionsContainer');
+            submissionsContainer.innerHTML = '<div class="loader"></div>';
+            showForm('submissionsContainer');
+
+            try {
+                const cashQuery = query(collection(db, "CommitteeMembers", currentCommitteeMember.email, "Submissions"));
+                const inKindQuery = query(collection(db, "CommitteeMembers", currentCommitteeMember.email, "InKindDonations"));
+
+                const [cashSnapshot, inKindSnapshot] = await Promise.all([getDocs(cashQuery), getDocs(inKindQuery)]);
+
+                const cashData = cashSnapshot.docs.map(doc => ({ id: doc.id, type: 'amount', ...doc.data() }));
+                const inKindData = inKindSnapshot.docs.map(doc => ({ id: doc.id, type: 'inKind', ...doc.data() }));
+
+                allSubmissionsMaster = [...cashData, ...inKindData];
+                applyFiltersAndRender();
+            } catch (error) {
+                console.error('View submissions error:', error);
+                submissionsContainer.innerHTML = '<p class="error">Failed to load submissions.</p>';
+            }
+        }
+
+        function applyFiltersAndRender() {
+            const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
+            const startDate = document.getElementById('startDate')?.value || '';
+            const endDate = document.getElementById('endDate')?.value || '';
+            const sortOrder = document.getElementById('sortOrder')?.value || 'amount_desc';
+
+            let filteredData = allSubmissionsMaster.filter(item => {
+                const name = item.name || '';
+                const city = item.city || '';
+                const phone = item.phoneNumber || '';
+                const matchesSearch = searchTerm === '' ||
+                    name.toLowerCase().includes(searchTerm) ||
+                    city.toLowerCase().includes(searchTerm) ||
+                    phone.includes(searchTerm);
+
+                if (!matchesSearch) return false;
+                if (!item.timestamp) return true;
+
+                const itemDate = item.timestamp.toDate();
+                const start = startDate ? new Date(startDate) : null;
+                const end = endDate ? new Date(endDate) : null;
+                if (start) start.setHours(0, 0, 0, 0);
+                if (end) end.setHours(23, 59, 59, 999);
+
+                const matchesDate = (!start || itemDate >= start) && (!end || itemDate <= end);
+                return matchesDate;
+            });
+
+            switch (sortOrder) {
+                case 'amount_asc':
+                    filteredData.sort((a, b) => (a.amount || 0) - (b.amount || 0));
+                    break;
+                case 'date_desc':
+                    filteredData.sort((a, b) => (b.timestamp?.toDate() || 0) - (a.timestamp?.toDate() || 0));
+                    break;
+                case 'amount_desc':
+                default:
+                    filteredData.sort((a, b) => (b.amount || 0) - (a.amount || 0));
+                    break;
+            }
+
+            currentlyDisplayedData = filteredData;
+            renderSubmissionsTable(currentlyDisplayedData);
+        }
+
+        function renderSubmissionsTable(dataToRender) {
+            const submissionsContainer = document.getElementById('submissionsContainer');
+            const filtersContainer = submissionsContainer.querySelector('.filters-container');
+
+            if (!filtersContainer) {
+                const currentSort = 'amount_desc';
+                let filterHtml = `
+                <button id="backToFormButton" class="back-btn"><i class="fas fa-arrow-left"></i> Back</button>
+                <div class="filters-container">
+                    <div><label for="searchInput">Search</label><input type="text" id="searchInput" placeholder="Name, City, Phone..."></div>
+                    <div><label for="startDate">Start Date</label><input type="date" id="startDate"></div>
+                    <div><label for="endDate">End Date</label><input type="date" id="endDate"></div>
+                    <div><label for="sortOrder">Sort By</label>
+                        <select id="sortOrder">
+                            <option value="amount_desc">Amount (High to Low)</option>
+                            <option value="amount_asc">Amount (Low to High)</option>
+                            <option value="date_desc">Date (Newest First)</option>
+                        </select>
+                    </div>
+                    <button id="exportButton" class="export-button success-btn"><i class="fas fa-file-excel"></i> Export</button>
+                </div>
+                <div id="table-content"></div> 
+            `;
+                submissionsContainer.innerHTML = filterHtml;
+                document.getElementById('sortOrder').value = currentSort;
+                addTableEventListeners();
+            }
+
+            const tableContentContainer = document.getElementById('table-content');
+            const totalAmount = dataToRender
+                .filter(item => item.type === 'amount')
+                .reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+
+            let tableHtml = '';
+            if (dataToRender.length === 0) {
+                tableHtml = '<p>No submissions match your filters.</p>';
+            } else {
+                tableHtml = `
+                <table>
+                    <thead><tr><th>Name</th><th>City</th><th>Donation</th><th>Date</th><th>Actions</th></tr></thead>
+                    <tbody>
+                        ${dataToRender.map(data => `
+                            <tr>
+                                <td data-label="Name">${data.name || 'N/A'}</td>
+                                <td data-label="City">${data.city || 'N/A'}</td>
+                                <td data-label="Donation">${data.type === 'amount' ? `₹${parseFloat(data.amount || 0).toFixed(2)}` : data.description}</td>
+                                <td data-label="Date">${data.timestamp?.toDate().toLocaleDateString() || 'N/A'}</td>
+                                <td class="action-cell">
+                                    <button class="view-btn" data-id="${data.id}" data-type="${data.type}"><i class="fas fa-eye"></i> View</button>
+                                    <button class="edit-btn" data-id="${data.id}" data-type="${data.type}"><i class="fas fa-edit"></i></button>
+                                    <button class="delete-btn" data-id="${data.id}" data-type="${data.type}"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                        <tr class="total-row">
+                            <td data-label="Total" colspan="2">Filtered Total Cash</td>
+                            <td data-label="Amount">₹${totalAmount.toFixed(2)}</td>
+                            <td colspan="2"></td>
+                        </tr>
+                    </tbody>
+                </table>`;
+            }
+            tableContentContainer.innerHTML = tableHtml;
+        }
+
+        function addTableEventListeners() {
+            document.getElementById('backToFormButton')?.addEventListener('click', () => showForm('customForm'));
+            document.getElementById('searchInput')?.addEventListener('input', applyFiltersAndRender);
+            document.getElementById('startDate')?.addEventListener('change', applyFiltersAndRender);
+            document.getElementById('endDate')?.addEventListener('change', applyFiltersAndRender);
+            document.getElementById('sortOrder')?.addEventListener('change', applyFiltersAndRender);
+            document.getElementById('exportButton')?.addEventListener('click', downloadXlsx);
+
+            const tableContent = document.getElementById('table-content');
+            if (tableContent) {
+                tableContent.addEventListener('click', (e) => {
+                    const button = e.target.closest('button');
+                    if (!button) return;
+
+                    const submissionId = button.dataset.id;
+                    const submissionType = button.dataset.type;
+
+                    if (button.classList.contains('view-btn')) {
+                        const submission = allSubmissionsMaster.find(item => item.id === submissionId);
+                        if (submission) showSubmissionModal(submission);
+                    } else if (button.classList.contains('edit-btn')) {
+                        editSubmission(submissionId, submissionType);
+                    } else if (button.classList.contains('delete-btn')) {
+                        deleteSubmission(submissionId, submissionType);
+                    }
+                });
+            }
+        }
+
+        function showSubmissionModal(submission) {
+            const modal = document.getElementById('submissionModal');
+            const modalBody = document.getElementById('modalBody');
+            const donationDisplay = submission.type === 'amount'
+                ? `<strong>Donation:</strong> <span>₹${parseFloat(submission.amount || 0).toFixed(2)}</span>`
+                : `<strong>Items:</strong> <span>${submission.description}</span>`;
+
+            modalBody.innerHTML = `
+            <p><strong>Name:</strong> <span>${submission.name}</span></p>
+            <p><strong>City:</strong> <span>${submission.city}</span></p>
+            <p><strong>Gothra:</strong> <span>${submission.gothra || 'N/A'}</span></p>
+            <p>${donationDisplay}</p>
+            <p><strong>Phone Number:</strong> <span>${submission.phoneNumber}</span></p>
+            <p><strong>Date:</strong> <span>${submission.timestamp?.toDate().toLocaleString() || 'N/A'}</span></p>
+            <p><strong>Collected By:</strong> <span>${currentCommitteeMember.name}</span></p>
+        `;
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('active'), 10);
+        }
+
+        function hideSubmissionModal() {
+            const modal = document.getElementById('submissionModal');
+            modal.classList.remove('active');
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        }
+
+        function editSubmission(docId, docType) {
+            const submission = allSubmissionsMaster.find(data => data.id === docId);
+            if (submission) {
+                if (docType === 'inKind') {
+                    showNotification('Editing for in-kind donations is not supported yet.', 'warning');
+                    return;
+                }
+                document.getElementById('editDocId').value = docId;
+                document.getElementById('editDocType').value = docType;
+                document.getElementById('editName').value = submission.name;
+                document.getElementById('editCity').value = submission.city;
+                document.getElementById('editGothra').value = submission.gothra;
+                document.getElementById('editAmount').value = submission.amount;
+                document.getElementById('editPhoneNumber').value = submission.phoneNumber;
+                showForm('editForm');
+            }
+        }
+
+        async function deleteSubmission(docId, docType) {
+            if (!confirm('Are you sure you want to delete this record? This action cannot be undone.')) {
+                return;
+            }
+
+            try {
+                const collectionName = docType === 'amount' ? "Submissions" : "InKindDonations";
+                const docRef = doc(db, "CommitteeMembers", currentCommitteeMember.email, collectionName, docId);
+                await deleteDoc(docRef);
+                showNotification('Record deleted successfully!', 'success');
+                await viewSubmissions();
+            } catch (error) {
+                console.error('Delete error:', error);
+                showNotification(`Failed to delete record: ${error.message}`, 'error');
+            }
+        }
+
+        async function saveEditedSubmission() {
+            const docId = document.getElementById('editDocId').value;
+            const docType = document.getElementById('editDocType').value;
+            const editMessage = document.getElementById('editMessage');
+            const saveButton = document.getElementById('saveEditedSubmissionButton');
+
+            const newName = document.getElementById('editName').value.trim();
+            const newCity = document.getElementById('editCity').value.trim();
+            const newGothra = document.getElementById('editGothra').value.trim();
+            const newAmount = document.getElementById('editAmount').value.trim();
+            const newPhoneNumber = sanitizePhoneNumber(document.getElementById('editPhoneNumber').value);
+
+            if (!newName || !newCity || !newGothra || !newAmount || !newPhoneNumber) {
+                editMessage.textContent = 'Please fill in all fields';
+                editMessage.className = 'message error';
+                return;
+            }
+            if (newPhoneNumber.length !== 10) {
+                editMessage.textContent = 'Please enter a valid 10-digit phone number.';
+                editMessage.className = 'message error';
+                return;
+            }
+
+            try {
+                saveButton.disabled = true;
+                const collectionName = docType === 'amount' ? "Submissions" : "InKindDonations";
+                const docRef = doc(db, "CommitteeMembers", currentCommitteeMember.email, collectionName, docId);
+
+                await updateDoc(docRef, {
+                    name: newName,
+                    city: newCity,
+                    gothra: newGothra,
+                    amount: parseFloat(newAmount),
+                    phoneNumber: newPhoneNumber
+                });
+
+                editMessage.textContent = 'Submission updated successfully!';
+                editMessage.className = 'message success';
+                showNotification('Submission updated!', 'success');
+                setTimeout(async () => {
+                    await viewSubmissions();
+                }, 1500);
+            } catch (error) {
+                console.error('Save edit error:', error);
+                editMessage.textContent = `Failed to update: ${error.message}`;
+                editMessage.className = 'message error';
+            } finally {
+                saveButton.disabled = false;
+            }
+        }
+
+        function cancelEdit() {
+            showForm('submissionsContainer');
+        }
+
+        function downloadXlsx() {
+            if (confirm("This will download an Excel sheet with the data exactly as you see it now (with current filters and sorting). Proceed?")) {
+                const dataForExport = currentlyDisplayedData.map(item => ({
+                    'Name': item.name,
+                    'City': item.city,
+                    'Donation Type': item.type,
+                    'Amount': item.type === 'amount' ? item.amount : '',
+                    'Items': item.type === 'inKind' ? item.description : '',
+                    'Phone Number': item.phoneNumber,
+                    'Date': item.timestamp?.toDate().toLocaleString() || 'N/A',
+                    'Collected By': currentCommitteeMember.name
+                }));
+
+                const ws = XLSX.utils.json_to_sheet(dataForExport);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Donations');
+                XLSX.writeFile(wb, 'donations_export.xlsx');
+                showNotification('Export successful!', 'success');
+            }
+        }
+
+        async function pickContact(targetInputId) {
+            if ('contacts' in navigator && 'select' in navigator.contacts) {
+                try {
+                    const contacts = await navigator.contacts.select(['tel'], { multiple: false });
+                    if (contacts.length > 0 && contacts[0].tel.length > 0) {
+                        const selectedPhone = contacts[0].tel[0];
+                        const targetInput = document.getElementById(targetInputId);
+                        if (targetInput) {
+                            targetInput.value = sanitizePhoneNumber(selectedPhone);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Contact Picker API error:', error);
+                    showNotification('Could not pick contact.', 'error');
+                }
+            } else {
+                showNotification('Contact Picker is not supported on your browser.', 'warning');
+            }
+        }
+
+        function initializeAuthToggle() {
+            const signUpLink = document.getElementById('signUpLink');
+            const signInLink = document.getElementById('signInLink');
+
+            if (signUpLink) {
+                signUpLink.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    toggleAuthMode('signUp');
+                });
+            }
+
+            if (signInLink) {
+                signInLink.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    toggleAuthMode('signIn');
+                });
+            }
+        }
+
+        function goBack() {
+            document.querySelector('#confirmAmount').parentNode.querySelector('strong').textContent = 'Amount:';
+            showForm('customForm');
+        }
+
+        initializeAuthToggle();
+        document.getElementById('submitAuthButton')?.addEventListener('click', handleAuthAction);
+        document.getElementById('resendVerificationButton')?.addEventListener('click', resendVerificationEmail);
+        document.getElementById('submitFormButton')?.addEventListener('click', submitForm);
+        document.getElementById('saveWhatsappButton')?.addEventListener('click', saveAndSendWhatsapp);
+        document.getElementById('goBackButton')?.addEventListener('click', goBack);
+        document.getElementById('viewSubmissionsButton')?.addEventListener('click', viewSubmissions);
+        document.getElementById('logoutButton')?.addEventListener('click', logout);
+        document.getElementById('saveEditedSubmissionButton')?.addEventListener('click', saveEditedSubmission);
+        document.getElementById('cancelEditButton')?.addEventListener('click', cancelEdit);
+        document.getElementById('pickContactBtn')?.addEventListener('click', () => pickContact('phoneNumber'));
+        document.getElementById('editPickContactBtn')?.addEventListener('click', () => pickContact('editPhoneNumber'));
+
+        document.querySelectorAll('input[name="donationType"]').forEach(radio => {
+            radio.addEventListener('change', (event) => {
+                const isCash = event.target.value === 'cash';
+                document.getElementById('amountGroup').classList.toggle('hidden-field', !isCash);
+                document.getElementById('inKindGroup').classList.toggle('hidden-field', isCash);
+            });
+        });
+
+        document.getElementById('modalCloseBtn')?.addEventListener('click', hideSubmissionModal);
+        document.getElementById('submissionModal')?.addEventListener('click', (e) => {
+            if (e.target.id === 'submissionModal') {
+                hideSubmissionModal();
+            }
+        });
+
+        onAuthStateChanged(auth, async (user) => {
+            const topBar = document.getElementById('top-bar');
+            if (user && user.emailVerified) {
+                try {
+                    const userDoc = await getDoc(doc(db, 'CommitteeMembers', user.email));
+                    if (userDoc.exists()) {
+                        currentCommitteeMember = {
+                            email: user.email,
+                            name: userDoc.data().name,
+                            mobile: userDoc.data().mobile
+                        };
+                        document.getElementById('loggedInUserName').textContent = currentCommitteeMember.name;
+                        showForm('customForm');
+                        topBar.style.display = 'flex';
+                    } else {
+                        await signOut(auth);
+                        showNotification('Committee member data not found', 'error');
+                        showForm('loginForm');
+                    }
+                } catch (error) {
+                    console.error('Auth state error:', error);
+                    await signOut(auth);
+                    showForm('loginForm');
+                }
+            } else {
+                currentCommitteeMember = null;
+                showForm('loginForm');
+                topBar.style.display = 'none';
+            }
+        });
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+    </script>
+</body>
+
+</html>
